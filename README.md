@@ -10,7 +10,7 @@ Step 3: Update the NODESERVICE variable in html/code.block to point to NodeJS se
 
 Step 4: Add a code block anywhere on your Squarespace site. Copy paste the code from html/code.block.
 
-Step 5: Refresh and test. If things don't work, look at your console/network panel for errors (obviously).
+Step 5: Refresh and test. If things don't work, look at your console/network panel for errors (obviously). If things look fine there, look at Heroku App logs.
 
 
 See it in action - http://template-kitchen.squarespace.com/stripe-test/
