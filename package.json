@@ -1,0 +1,22 @@
+{
+  "name": "node-stripe-squarespace",
+  "version": "1.0.0",
+  "description": "One way to integrate custom stripe stuff into Squarespace",
+  "main": "index.js",
+  "dependencies": {
+    "body-parser": "^1.13.3",
+    "cors": "^2.7.1",
+    "express": "^4.13.3",
+    "stripe": "^3.7.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "stripe"
+  ],
+  "author": "Riyaz",
+  "license": "ISC"
+}

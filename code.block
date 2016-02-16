@@ -1,0 +1,153 @@
+<style>
+.donate-input {
+  	width: 100px;
+    padding: 10px;
+    margin: 6px 12px 4px;
+    border: 1px solid #ccc;
+    background: #fafafa;
+    font-family: sans-serif;
+    font-size: 14px;
+    line-height: normal;
+    box-sizing: border-box;
+    border-radius: 2px;
+}
+.donate-monthly {
+  font-style: italic;
+  font-size: 13px;
+}
+.error {
+  font-size: 11px;
+  color: red;
+}
+.donate-start {
+  margin-bottom: 1em;
+}
+</style>
+<div id="donate-custom">
+
+  <div class="donate-start">
+    <div class="donate-button sqs-donate-button sqs-system-button sqs-editable-button">Donate</div>
+    <input class="donate-input" name="amount" type="text" spellcheck="false" maxlength="6" data-title="amount" placeholder="$10.00">
+    <label class="donate-monthly"><input type="checkbox" name="recurring" checked=""> Monthly</label>
+  </div>
+  <div class="error"></div>
+
+  <a href="" class="cancel">Cancel my monthly donation</a>
+  <div class="donate-cancel" hidden="">
+    <div class="cancel-button sqs-donate-button sqs-suppress-edit-mode sqs-system-button sqs-editable-button">Cancel</div>
+    <input class="donate-input" name="email" type="text" spellcheck="false" maxlength="100" data-title="email" placeholder="Email used">
+  </div>
+</div>
+
+<script src="https://checkout.stripe.com/checkout.js"></script>
+<script>
+Y.use('node', function (Y) {
+  var NODESERVICE = '<nodejs-service-url>.herokuapp.com';
+  var KEYS = {
+    live: 'pk_live_*',
+    test: 'pk_test_*'
+  };
+
+  var baseUrl = window.location.protocol + '//' + NODESERVICE;
+  var key = Static.SQUARESPACE_CONTEXT.websiteSettings.storeSettings.isLive ? KEYS.live : KEYS.test;
+
+  var handler = StripeCheckout.configure({
+    key: key,
+    // image: '/assets/iphone5.png',
+    locale: 'auto',
+    allowRememberMe: false,
+    token: function(token) {
+      console.log(token);
+
+      Y.Data.post({
+        url: baseUrl + (recurring ? '/stripe/subscribe' : '/stripe/charge'),
+        // secure: true,
+        data: {
+          token: token.id,
+          amount: amount * 100,
+          email: token.email,
+          key: key,
+          description: (recurring ? 'Monthly ' : 'One-time ') + 'payment for ' + Static.SQUARESPACE_CONTEXT.collection.title
+        },
+        success: function() {
+          parentNode.setHTML('Thank you for your donation');      
+        },
+        failure: function(err) {
+          parentNode.one('.error').setHTML(err.message);
+        }
+      });
+      
+    }
+  });
+
+  var parentNode = Y.one("#donate-custom");
+  var textbox = parentNode.one('input[name="amount"]'); 
+  var checkbox = parentNode.one('input[name="recurring"]');
+  var amount = textbox.getAttribute('placeholder').substring(1);
+  var recurring = true;
+
+  // Donation Start
+  parentNode.one('.donate-button').on('click', function() {
+    parentNode.one('.error').setHTML('');
+
+    var textVal = textbox.get('value');
+    if (textVal && !isNaN(textVal)) {
+      amount = textVal;
+    }
+
+    recurring = checkbox.get('checked');
+    
+    console.log(amount,recurring);
+
+    handler.open({
+      name: Static.SQUARESPACE_CONTEXT.collection.title,
+      description: (recurring ? 'Monthly ': 'One-time ') + 'Payment of $' + amount,
+      amount: amount * 100,
+      billingAddress: true
+    });
+  });
+
+  // Donation Cancel
+  parentNode.one('a.cancel').on('click', function(e) {
+    e.preventDefault();
+    // this.hide();
+    // parentNode.one('.donate-start').hide();
+    parentNode.one('.donate-cancel').toggleView();
+
+    parentNode.one('.cancel-button').on('click', function() {
+      parentNode.one('.error').setHTML('');
+
+      var email = parentNode.one('input[name="email"]').get('value');
+
+      if (email) {
+        this.setHTML('Canceling...');
+
+        Y.Data.post({
+          url: baseUrl + '/stripe/unsubscribe',
+          // secure: true,
+          data: {
+            email: email,
+            key: key
+          },
+          success: function() {
+            parentNode.setHTML('Your monthly donation has been cancelled');    
+          },
+          failure: function(err) {
+            parentNode.one('.error').setHTML(err.message);
+            parentNode.one('.cancel-button').setHTML('Cancel');
+          }
+        })
+      } else {
+        parentNode.one('.error').setHTML('Enter an email to cancel');
+      }
+    });
+  });
+
+
+  // Close Checkout on page navigation
+  Y.one(window).on('popstate', function() {
+    handler.close();
+  });  
+
+});
+</script>
