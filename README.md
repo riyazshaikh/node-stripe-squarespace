@@ -14,3 +14,6 @@ Step 5: Refresh and test. If things don't work, look at your console/network pan
 
 
 See it in action - http://template-kitchen.squarespace.com/stripe-test/
+
+
+For additional functionality, you can contact me for [paid services](https://square-mart.squarespace.com/services/)
