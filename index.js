@@ -1,4 +1,4 @@
-var stripeKeys = {
+var STRIPE_KEYS = {
 	'pk_test_*': 'sk_test_*',
 	'pk_live_*': 'sk_live_*'
 };
@@ -28,7 +28,7 @@ app.post("/stripe/charge", function(request, response) {
 	if (request.body.token && request.body.key) {
 		console.log('charging ' + request.body.email);
 
-		var stripe = require('stripe')(stripeKeys[request.body.key]);
+		var stripe = require('stripe')(STRIPE_KEYS[request.body.key]);
 		stripe.charges.create({
 		  amount: request.body.amount,
 		  currency: "usd",
@@ -51,7 +51,7 @@ app.post("/stripe/subscribe", function(request, response) {
 	if (request.body.token && request.body.key) {
 		console.log('subscribing ' + request.body.email);
 
-		var stripe = require('stripe')(stripeKeys[request.body.key]);
+		var stripe = require('stripe')(STRIPE_KEYS[request.body.key]);
 		stripe.customers.create({
 		  quantity: parseInt(request.body.amount),
 		  plan: 'donation',
@@ -74,7 +74,7 @@ app.post('/stripe/unsubscribe', function(request, response) {
 	if (email && request.body.key) {
 		console.log('looking for customer ' + email);
 
-		var stripe = require('stripe')(stripeKeys[request.body.key]);
+		var stripe = require('stripe')(STRIPE_KEYS[request.body.key]);
 		stripe.customers.list({
 			limit: 100
 		}).then(function(customers){
